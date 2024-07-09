@@ -1,65 +1,48 @@
 #include <stdio.h>
-#define SIZE 10
+struct router
+{
+    unsigned cost[20];
+    unsigned from[20];
+} routingTable[10];
 
-int costmat[SIZE][SIZE];
-struct{
-	int distance[SIZE];
-	int adj[SIZE];
-}node[SIZE];
-int n;
-
-
-void readCostMatrix(){
-	int i,j;
-	printf("Enter cost matrix(n=%d):- \n",n);
-	for(i=0;i<n;i++){
-		printf("Router %d: ",(i+1));
-		for(j=0;j<n;j++){
-				scanf("%d",&costmat[i][j]);
-				costmat[i][i]=0;
-				node[i].distance[j] = costmat[i][j];
-				node[i].adj[j] = j;
-		}
-		printf("\n");
-	}
-}
-
-void calcRoutingTable(){
-	//bellman-ford algorithm
-	int i,j,k;
-	for(i=0;i<n;i++){
-		for(j=0;j<n;j++){
-			for(k=0;k<n;k++){
-				if(node[i].distance[j] > costmat[i][k] + node[k].distance[j]){
-					node[i].distance[j] = costmat[i][k] + node[k].distance[j];
-					node[i].adj[j] = k; 
-				}
-			}
-		}
-	}
-
-} 
-void displayShortestRoutes(){
-	int i,j;
-	//print heading and columns
-	printf("Shortest Path - Routing Table\n");
-	for(i=0;i<n;i++){
-		for(j=0;j<n;j++){
-			printf("From Node %d to node %d = %d via node %d\n",i,j,node[i].distance[j],node[i].adj[j]);
-		}
-		printf("\n");
-	}
-	
-
-}
-
-int main(){
-	
-	printf("Enter no of routers:");
-	scanf("%d",&n);
-	readCostMatrix();
-	calcRoutingTable();
-	displayShortestRoutes();
-	return 0;
-
+int main()
+{
+    int costmat[20][20];
+    int routers,i,j,k,count=0;
+    printf("\nEnter the no: of routers : ");
+    scanf("%d",&routers);
+    printf("\nEnter the cost matrix : \n");
+    for(i=0;i<routers;i++)
+        for(j=0;j<routers;j++)
+        {
+            scanf("%d",&costmat[i][j]);
+            costmat[i][i]=0;
+            routingTable[i].cost[j]=costmat[i][j];
+            routingTable[i].from[j]=j;
+        }
+    
+    int otherShorterPathExists;
+    do
+    {
+        otherShorterPathExists=0;
+        for(i=0;i<routers;i++)
+            for(j=0;j<routers;j++)
+                for(k=0;k<routers;k++)
+                    if(routingTable[i].cost[j]>costmat[i][k]+routingTable[k].cost[j])
+                    {
+                        routingTable[i].cost[j]=routingTable[i].cost[k]+routingTable[k].cost[j];
+                        routingTable[i].from[j]=k;
+                        otherShorterPathExists=1;
+                    }
+    } while (otherShorterPathExists!=0);
+    
+    for(i=0;i<routers;i++)
+    {
+        printf("\n\nFor Router %d\n",i+1);
+        for(j=0;j<routers;j++)
+        {
+            printf("\t\nRouter %d via %d distance %d ",j+1,routingTable[i].from[j]+1,routingTable[i].cost[j]);
+        }
+    }
+    printf("\n\n");
 }
